@@ -5,10 +5,11 @@ const mbxClient = require('@mapbox/mapbox-sdk');
 const geocodingClient = mbxGeocoding({ accessToken: mapToken });
 
 module.exports.index = async (req, res) =>
-    {
-        const allListings = await Listing.find({});
-        res.render("listings/index.ejs", { allListings });
-    };
+{
+    const search_query = req.query.query;
+    const allListings = await Listing.find({ title: search_query});
+    res.render("listings/index.ejs", { allListings });
+};
 
 module.exports.renderNewForm = (req, res) =>
     {
@@ -17,7 +18,7 @@ module.exports.renderNewForm = (req, res) =>
 
 module.exports.showListing = async (req, res) =>
     {
-        let {id} = req.params;  
+        let {id} = req.params; 
         const listing = await Listing.findById(id).populate({path: "reviews", populate: {path: "author",}}).populate("owner"); 
         if(!listing)
         {
@@ -57,7 +58,6 @@ module.exports.createListing = async (req, res, next) =>
         newListing.image = {url, filename};
         newListing.geometry = response.body.features[0].geometry;
         await newListing.save();
-        console.log(newListing);
         req.flash("success", "new listing created");
         res.redirect("/listings");
     };
