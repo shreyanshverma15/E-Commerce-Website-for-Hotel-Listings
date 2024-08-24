@@ -7,7 +7,14 @@ const geocodingClient = mbxGeocoding({ accessToken: mapToken });
 module.exports.index = async (req, res) =>
 {
     const search_query = req.query.query;
-    const allListings = await Listing.find({ title: search_query});
+    let allListings;
+
+    if (search_query) {
+        allListings = await Listing.find({ title: search_query});
+    } else {
+        allListings = await Listing.find({});
+    }
+
     res.render("listings/index.ejs", { allListings });
 };
 
